@@ -1,10 +1,16 @@
-name: UML diff
-
-# On every pull request: find the endpoints whose request flow changed and post
-# a comment with a summary and one sequence diagram per endpoint.
+# Pretty Good UML for GitHub Actions.
 #
-# Needs one repository secret:
-#   UML_PACKAGE_URL  the https address of the PrettyGood.Uml .nupkg file
+# Copy this file to .github/workflows/uml.yml in your repository and set SOLUTION below.
+# On every pull request it finds the endpoints whose request flow changed and posts one
+# comment with a summary and a sequence diagram per endpoint. Later pushes update that comment.
+#
+# Public repositories need nothing else.
+# Private repositories: add the repository (or organization) secret UML_LICENSE with your
+# licence key. Without it the report shows the first endpoint only.
+#
+# The job never fails the pull request: if the tool cannot run, the checks stay green.
+
+name: UML diff
 
 on:
   pull_request:
@@ -20,11 +26,12 @@ env:
 jobs:
   uml-diff:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Check out the pull request
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # the full history, to compare with the base branch
 
       - name: Install .NET
         uses: actions/setup-dotnet@v5
@@ -32,21 +39,14 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Install Pretty Good UML
-        env:
-          UML_PACKAGE_URL: ${{ secrets.UML_PACKAGE_URL }}
-        run: |
-          if [ -z "$UML_PACKAGE_URL" ]; then
-            echo "::error::Add the repository secret UML_PACKAGE_URL (address of the .nupkg file)."
-            exit 1
-          fi
-          mkdir -p "$RUNNER_TEMP/uml-feed"
-          curl -fsSL "$UML_PACKAGE_URL" -o "$RUNNER_TEMP/uml-feed/$(basename "${UML_PACKAGE_URL%%\?*}")"
-          dotnet tool install PrettyGood.Uml --tool-path "$RUNNER_TEMP/uml-tool" --add-source "$RUNNER_TEMP/uml-feed"
+        run: dotnet tool install PrettyGood.Uml --tool-path "$RUNNER_TEMP/uml-tool"
 
       - name: Restore the solution
         run: dotnet restore "$SOLUTION"
 
       - name: Compare with the base branch
+        env:
+          UML_LICENSE: ${{ secrets.UML_LICENSE }}
         run: >
           "$RUNNER_TEMP/uml-tool/pretty-good-uml" diff
           --project "$SOLUTION"
