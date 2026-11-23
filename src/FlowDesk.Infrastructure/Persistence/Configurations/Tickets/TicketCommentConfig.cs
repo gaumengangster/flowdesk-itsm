@@ -16,9 +16,12 @@ public class TicketCommentConfiguration : IEntityTypeConfiguration<TicketComment
 
         builder.Property(tc => tc.Description)
                 .IsRequired()
-                .HasMaxLength(900);
+                .HasMaxLength(1000);
 
-        builder.HasIndex(tc => tc.TicketId);
+        builder.HasIndex(tc => tc.TicketId)
+               .HasFilter("\"IsDeleted\" = false");
+
+        builder.HasIndex(tc => tc.CreatedBy);
 
         builder.HasOne<AppUser>()
                 .WithMany()

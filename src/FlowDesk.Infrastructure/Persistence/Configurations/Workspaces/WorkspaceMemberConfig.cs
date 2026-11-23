@@ -23,12 +23,13 @@ public class WorkspaceMemberConfig : IEntityTypeConfiguration<WorkspaceMember>
         builder.HasOne<AppUser>()
                 .WithMany()
                 .HasForeignKey(wm => wm.UserId)
-                .OnDelete(DeleteBehavior.Restrict);  
+                .OnDelete(DeleteBehavior.Cascade);  
                 
         builder.HasQueryFilter(wm => !wm.Workspace.IsDeleted);               
 
         builder.HasIndex(wm => wm.WorkspaceId);
-        builder.HasIndex(wm => wm.UserId);              
+        builder.HasIndex(wm => wm.UserId);
+        builder.HasIndex(wm => new { wm.WorkspaceId, wm.Role });              
     }
 }
 
