@@ -19,16 +19,16 @@ public sealed class UserNotificationConfig : IEntityTypeConfiguration<UserNotifi
                .IsRequired();
 
         builder.Property(n => n.Title)
-               .HasMaxLength(200)
+               .HasMaxLength(150)
                .IsRequired();
 
         builder.Property(n => n.Body)
-               .HasMaxLength(1000)
+               .HasMaxLength(2000)
                .IsRequired();
 
         builder.Property(n => n.EventType)
                .HasConversion<string>()
-               .HasMaxLength(50)
+               .HasMaxLength(64)
                .IsRequired();
 
         builder.Property(n => n.RelatedTicketId);
@@ -46,6 +46,6 @@ public sealed class UserNotificationConfig : IEntityTypeConfiguration<UserNotifi
 
         builder.HasIndex(n => new { n.WorkspaceId, n.RecipientUserId, n.CreatedAt });
 
-        builder.HasIndex(n => n.RelatedTicketId);
+        builder.HasIndex(n => n.CreatedAt);
     }
 }

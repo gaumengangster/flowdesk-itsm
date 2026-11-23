@@ -19,7 +19,7 @@ public class AssetConfig : IEntityTypeConfiguration<Asset>
         {
             name.Property(x => x.Value)
                 .HasColumnName("Name")
-                .HasMaxLength(100)
+                .HasMaxLength(150)
                 .IsRequired();
         });
 
@@ -34,7 +34,6 @@ public class AssetConfig : IEntityTypeConfiguration<Asset>
                .HasConversion<string>()
                .IsRequired();                
 
-        builder.HasIndex(a => a.WorkspaceId);
         builder.HasIndex(a => a.CategoryId);
         builder.HasIndex(a => new { a.WorkspaceId, a.CategoryId });
         builder.HasIndex(c => new
@@ -47,6 +46,7 @@ public class AssetConfig : IEntityTypeConfiguration<Asset>
         {
             x.WorkspaceId,
             x.AssetTag
-        }).IsUnique();   
+        }).IsUnique()
+          .HasFilter("\"AssetTag\" IS NOT NULL");   
     }
 }
