@@ -39,7 +39,7 @@ public class TicketConfig : IEntityTypeConfiguration<Ticket>
               {  
               description.Property(x => x.Value)
                             .HasColumnName("Description")
-                            .HasMaxLength(500)
+                            .HasMaxLength(2000)
                             .IsRequired();
               });
 
@@ -55,6 +55,8 @@ public class TicketConfig : IEntityTypeConfiguration<Ticket>
               builder.HasIndex(t => t.WorkspaceId);
               builder.HasIndex(t => t.Status);
               builder.HasIndex(t => t.Priority);
-              builder.HasIndex(t => new { t.WorkspaceId, t.Status });
+              builder.HasIndex(t => new { t.WorkspaceId, t.Status })
+                     .HasFilter("\"IsArchived\" = false");
+              builder.HasIndex(t => t.AssignedToUserId);
        }
 }
